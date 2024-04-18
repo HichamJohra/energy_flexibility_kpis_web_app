@@ -6,162 +6,37 @@
 @prefix qudt: <http://qudt.org/schema/qudt/> .
 @prefix quantitykind: <https://qudt.org/2.1/vocab/quantitykind/> .
 @prefix unit: <http://qudt.org/vocab/unit/> .
-@prefix dcat: <http://www.w3.org/ns/dcat#> .
-@prefix dct: <http://purl.org/dc/terms/> .
 @prefix efkpis: <http://example.org/efkpis#> .
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Classes
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 efkpis:KPI rdf:type owl:Class .
 efkpis:Stakeholder rdf:type owl:Class .
 efkpis:DOEFlexibilityCategory rdf:type owl:Class .
 efkpis:Complexity rdf:type owl:Class .
 efkpis:Relevance rdf:type owl:Class .
 efkpis:PerformanceAspect rdf:type owl:Class .
-efkpis:TemporalResolution rdf:type owl:Class .
-
 efkpis:SpatialResolution rdf:type owl:Class .
 efkpis:TimePeriod rdf:type owl:Class ;
     rdfs:subClassOf quantitykind:Period .
 
-# Data access related classe
-efkpis:DataAccessMethod rdf:type owl:Class ;
-    skos:definition "Represents methods through which data can be accessed, including static datasets and dynamic transformations." .
-
-efkpis:DataAccessSpecs rdf:type owl:Class ;
-    rdfs:label "Data Access Specifications" ;
-    skos:definition "A set of specifications detailing how to access data within a dataset for a specific input variable." .
-
-efkpis:ResamplingProcess rdf:type owl:Class ;
-    rdfs:label "Resampling Process" ;
-    skos:definition "A process that involves changing the temporal resolution of a dataset from one frequency to another." .
-
-## EF KPIs Classes
-efkpis:FlexibilityFactor rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:KPI ;
-    rdfs:label "Flexibility Factor" ;
-    skos:definition "Indicator of a quantity (e.g., energy, cost, emissions) during high load period(s) versus during low load period(s), which ranges between -1 (quantity was only during high load period(s)) and 1 (quantity was only during low load period(s))." ;
-    efkpis:suggestion "Hourly temporal resolution is commonly used for this KPI." ;
-    efkpis:acronym "FF" ;
-    efkpis:hasUnit unit:FRACTION ;
-    efkpis:hasRelevance efkpis:HighRelevance ;
-    efkpis:hasComplexity efkpis:LowComplexity ;
-    efkpis:needsBaseline false ;
-    efkpis:hasStakeholder efkpis:BuildingOperator, efkpis:Researcher ;
-    efkpis:hasSpatialResolution efkpis:BuildingLevel ;
-    efkpis:doeFlexibilityCategory efkpis:Shift ;
-    efkpis:hasPerformanceAspect efkpis:EnergyPerformance, efkpis:PowerPerformance ;
-    efkpis:hasInputVariable efkpis:GenericLoadProfile, efkpis:HighLoadStartTimestamp, efkpis:HighLoadEndTimestamp ;
-    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/load_shifting.py#L9C16-L9C16> .
-
-### PeakPowerReduction as a subclass of efkpis:KPI
-efkpis:PeakPowerReduction rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:KPI ;
-    rdfs:label "Peak Power Reduction" ;
-    skos:definition "Reduced power demand during peak hour due to flexible operation. The evaluation window should consider the peak hour after the flexible operation." ;
-    efkpis:suggestion "Typically analyzed with an hourly or finer resolution to match peak consumption periods." ;
-    efkpis:acronym "PPR" ;
-    efkpis:hasUnit unit:KiloW ;  # Use of qudt ontology for unit
-    efkpis:hasRelevance efkpis:HighRelevance ;
-    efkpis:hasComplexity efkpis:LowComplexity ;
-    efkpis:needsBaseline true ;
-    efkpis:hasStakeholder efkpis:DistributionSystemOperator, efkpis:TransmissionSystemOperator ;
-    efkpis:hasSpatialResolution efkpis:UnspecifiedLevel ;
-    efkpis:doeFlexibilityCategory efkpis:LoadShedding ;
-    efkpis:hasPerformanceAspect efkpis:PowerPerformance ;
-    efkpis:hasInputVariable efkpis:BaselineElectricPowerProfile, efkpis:FlexibleElectricPowerProfile, efkpis:PeakTimestamp ;
-    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/peak_power_shedding.py#L9C16-L9C16> .
-
-### CapacityOfADR as a subclass of efkpis:KPI
-efkpis:CapacityOfADR rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:KPI ;
-    rdfs:label "Capacity of ADR" ;
-    skos:definition "The amount of energy that can be added to or removed from the storage system during an ADR action (up/down-flex)." ;
-    efkpis:suggestion "Assessment period may vary, but daily resolution is common for capturing full cycle capabilities." ;
-    efkpis:acronym "CADR" ;
-    efkpis:hasUnit unit:KiloW-HR ;  # Use of qudt ontology for unit
-    efkpis:hasRelevance efkpis:HighRelevance ;
-    efkpis:hasComplexity efkpis:LowComplexity ;
-    efkpis:needsBaseline true ;
-    efkpis:hasStakeholder efkpis:BuildingOperator, efkpis:TransmissionSystemOperator ;
-    efkpis:hasSpatialResolution efkpis:UnspecifiedLevel ;
-    efkpis:doeFlexibilityCategory efkpis:LoadShifting, efkpis:LoadShedding ;
-    efkpis:hasPerformanceAspect efkpis:EnergyPerformance ;
-    efkpis:hasInputVariable efkpis:BaselineElectricEnergyProfile, efkpis:FlexibleElectricEnergyProfile, efkpis:HighLoadStartTimestamp, efkpis:HighLoadEndTimestamp ;
-    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/energy_storage_capability.py#L9C16-L9C16> .
-
-## Input variable classes
 efkpis:InputVariable rdf:type owl:Class .
 efkpis:SingleValueInputVariable rdf:type owl:Class ;
     rdfs:subClassOf efkpis:InputVariable .
 efkpis:SerialValueInputVariable rdf:type owl:Class ;
     rdfs:subClassOf efkpis:InputVariable .
 
-# ~~~~~~~~~~~~ Single Value Input Variables ~~~~~~~~~~~~
-efkpis:HighLoadStartTimestamp rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SingleValueInputVariable ;
-    rdfs:label "High Load Start Timestamp" ;
-    skos:definition "The datetime when unit price/emission are higher, or the start of the peak period." ;
-    efkpis:physicalQuantity qudt:DATETIME .
-
-efkpis:HighLoadEndTimestamp rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SingleValueInputVariable ;
-    rdfs:label "High Load End Timestamp" ;
-    skos:definition "The datetime when unit price/emission revert to normal, or the end of the peak period." ;
-    efkpis:physicalQuantity qudt:DATETIME .
-
-efkpis:PeakTimestamp rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SingleValueInputVariable ;
-    rdfs:label "Peak Timestamp" ;
-    skos:definition "The specific datetime marking the peak of electric power demand, used to identify peak load conditions." ;
-    efkpis:physicalQuantity qudt:DATETIME .
-
-# ~~~~~~~~~~~~ Serial Value Input Variables ~~~~~~~~~~~~
-efkpis:GenericLoadProfile rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SerialValueInputVariable ;
-    rdfs:label "Generic Load Profile" ;
-    skos:definition "A generic time series of energy, cost, or GHG emissions, measured in uncontrolled (unspecified) conditions." ;
-    efkpis:suggestion "This profile can represent various physical quantities like energy, cost, GHG emissions, runtime, etc. Choose appropriate units and temporal resolution based on the specific application context." .
-
-efkpis:BaselineElectricPowerProfile rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SerialValueInputVariable ;
-    rdfs:label "Baseline Electric Power Profile" ;
-    skos:definition "A time series representing the electric power profile under normal (non-flexible) operation conditions, used as a baseline for comparison." .
-
-efkpis:FlexibleElectricPowerProfile rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SerialValueInputVariable ;
-    rdfs:label "Flexible Electric Power Profile" ;
-    skos:definition "A time series representing the electric power profile during flexible operation, reflecting changes due to demand response or other flexibility strategies." .
-
-efkpis:BaselineElectricEnergyProfile rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SerialValueInputVariable ;
-    rdfs:label "Baseline Electric Energy Profile" ;
-    skos:definition "A time series representing the electric energy profile under normal (non-flexible) operation conditions, used as a baseline for comparison." .
-
-efkpis:FlexibleElectricEnergyProfile rdf:type owl:Class ;
-    rdfs:subClassOf efkpis:SerialValueInputVariable ;
-    rdfs:label "Flexible Electric Energy Profile" ;
-    skos:definition "A time series representing the electric energy profile during flexible operation, reflecting changes due to demand response or other flexibility strategies." .
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Properties
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## Datatype Properties
+# ------------------------------------------------------------------------------
+efkpis:hasRelevance rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:string .
 
-# ~~~~~~~~~~~~~~ Annotation Properties ~~~~~~~~~~~~~~~~
-efkpis:suggestion rdf:type owl:AnnotationProperty .
-
-# ~~~~~~~~~~~~~~ Datatype Properties ~~~~~~~~~~~~~~~~
 efkpis:needsBaseline rdf:type owl:DatatypeProperty ;
     rdfs:range xsd:boolean .
 
-efkpis:temporalResolutionUnit rdf:type owl:DatatypeProperty ;
-    rdfs:domain efkpis:TemporalResolution ;
-    rdfs:range xsd:string .  # use xsd:string to keep the unit generic, allowing for various unit identifiers from the QUDT ontology to be used as literals.
-
-efkpis:temporalResolutionValue rdf:type owl:DatatypeProperty ;
-    rdfs:domain efkpis:TemporalResolution ;
-    rdfs:range xsd:integer .  # Specifies the value of the resolution in the unit defined.
+efkpis:temporalResolution rdf:type owl:DatatypeProperty ;
+    rdfs:range xsd:string .
 
 efkpis:acronym rdf:type owl:DatatypeProperty ;
     rdfs:range xsd:string .
@@ -182,23 +57,31 @@ efkpis:hasValues rdf:type owl:DatatypeProperty ;
     rdfs:domain efkpis:SerialValueInputVariable ;
     rdfs:range rdf:List .  # A list to represent an array of various types of data
 
-efkpis:dataframeStartingRow rdf:type owl:DatatypeProperty ;
-    rdfs:domain efkpis:DataAccessSpecs ;
-    rdfs:range rdfs:Literal ;  # Allows both xsd:string and xsd:integer, accommodating various referencing styles
-    rdfs:label "dataframe starting row" ;
-    skos:definition "Specifies the starting row index or label from which the data should be read in the dataframe-like dataset." .
+efkpis:temporalResolutionValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain efkpis:InputVariable ;
+    rdfs:range xsd:integer .  # Temporal resolution value as an integer
 
-efkpis:dataframeStartingColumn rdf:type owl:DatatypeProperty ;
-    rdfs:domain efkpis:DataAccessSpecs ;
-    rdfs:range rdfs:Literal ;  # Allows both xsd:string and xsd:integer, accommodating various referencing styles
-    rdfs:label "dataframe starting column" ;
-    skos:definition "Specifies the starting column name or index from which the data should be read in the dataframe-like dataset." .
+efkpis:filePath rdf:type owl:DatatypeProperty ;
+    rdfs:domain rdf:Description ;
+    rdfs:range xsd:string .
 
-# ~~~~~~~~~~~~~~ Object Properties ~~~~~~~~~~~~~~~~
+efkpis:fileFormat rdf:type owl:DatatypeProperty ;
+    rdfs:domain rdf:Description ;
+    rdfs:range xsd:string .
+
+efkpis:dataColumns rdf:type owl:DatatypeProperty ;
+    rdfs:domain rdf:Description ;
+    rdfs:range xsd:string .
+
+
+# ------------------------------------------------------------------------------
+## Object Properties
+# ------------------------------------------------------------------------------
 efkpis:hasUnit rdf:type owl:ObjectProperty ;
     rdfs:domain [ rdf:type owl:Class ;
                   owl:unionOf (efkpis:KPI efkpis:InputVariable) ] ;
     rdfs:range qudt:Unit .  # Using QUDT Unit class
+
 
 efkpis:hasComplexity rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
@@ -222,47 +105,6 @@ efkpis:hasSpatialResolution rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
     rdfs:range efkpis:SpatialResolution .
 
-efkpis:hasMeasurementPeriod rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:SerialValueInputVariable ;
-    rdfs:range efkpis:TimePeriod .
-
-efkpis:hasDataSource rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:InputVariable ;
-    rdfs:range dcat:Dataset .
-
-# NOTE: this applies to data from a dynamic process (e.g., resampling transform)
-efkpis:hasDataAccessMethod rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:InputVariable ;
-    rdfs:range efkpis:DataAccessMethod ;
-    rdfs:label "has data access method" ;
-    skos:definition "Links an input variable to its method of data access, which can be either through static data access specifications or a dynamic transformation process." .
-
-efkpis:hasDataAccessSpecs rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:InputVariable ;
-    rdfs:range efkpis:DataAccessSpecs ;
-    rdfs:label "has data access specifications" ;
-    skos:definition "Links an input variable to its specific data access instructions from a data source." .
-
-# NOTE: this applies to data from a static source
-# Keeping the original property but now under the new intermediary class for static dataset specs
-efkpis:hasDataAccessSpecs rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:DataAccessMethod ;
-    rdfs:range efkpis:DataAccessSpecs ;
-    rdfs:label "has data access specifications" ;
-    skos:definition "Links a method of data access to its specific data access instructions from a static dataset." .
-
-# Introducing a new property to link to transformation processes
-efkpis:hasTransformationProcess rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:DataAccessMethod ;
-    rdfs:range efkpis:ResamplingProcess ;  # Or whatever the class name is for the transformation process
-    rdfs:label "has transformation process" ;
-    skos:definition "Links a method of data access to a transformation process that dynamically generates the data." .
-
-efkpis:hasTemporalResolution rdf:type owl:ObjectProperty ;
-    rdfs:domain [ rdf:type owl:Class ;
-                  owl:unionOf (efkpis:KPI efkpis:SerialValueInputVariable) ] ;
-    rdfs:range efkpis:TemporalResolution .
-
 efkpis:doeFlexibilityCategory rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
     rdfs:range efkpis:DOEFlexibilityCategory .
@@ -273,45 +115,33 @@ efkpis:hasPerformanceAspect rdf:type owl:ObjectProperty ;
 
 efkpis:hasEvaluationWindow rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
-    rdfs:range efkpis:TimePeriod .
+    rdfs:range efkpis:EvaluationWindow .
 
 efkpis:hasInputVariable rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
     rdfs:range efkpis:InputVariable .
+
+efkpis:temporalResolutionUnit rdf:type owl:ObjectProperty ;
+    rdfs:domain efkpis:InputVariable ;
+    rdfs:range owl:Individual .  # General range to accommodate individual OM units
 
 efkpis:physicalQuantity rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:InputVariable ;
     rdfs:range [ rdf:type owl:Class ;
                  owl:unionOf (qudt:QuantityKind qudt:DateTimeStringEncodingType) ] . # Linking to QUDT's class
 
+efkpis:dataSource rdf:type owl:ObjectProperty ;
+    rdfs:domain efkpis:SerialValueInputVariable ;
+    rdfs:range rdfs:Resource .  # General range to include any type of resource
+
 # Property for Function URL
 efkpis:pythonCodeURL rdf:type owl:ObjectProperty ;
     rdfs:domain efkpis:KPI ;
     rdfs:range xsd:anyURI .  # The range is any URI
 
-efkpis:hasResamplingSourceVariable rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:ResamplingProcess ;
-    rdfs:range efkpis:SerialValueInputVariable ;
-    rdfs:label "has resampling source variable" ;
-    skos:definition "Links a resampling process to its source variable, indicating the original data prior to resampling." .
-
-efkpis:hasResamplingTargetVariable rdf:type owl:ObjectProperty ;
-    rdfs:domain efkpis:ResamplingProcess ;
-    rdfs:range efkpis:SerialValueInputVariable ;
-    rdfs:label "has resampling target variable" ;
-    skos:definition "Links a resampling process to its target variable, indicating the data resulting from the resampling." .
-
-# Property to specify the resampling method
-efkpis:usesResamplingMethod rdf:type owl:DatatypeProperty ;
-    rdfs:domain efkpis:ResamplingProcess ;
-    rdfs:range xsd:string ;
-    rdfs:label "uses resampling method" ;
-    skos:definition "Specifies the method used for resampling, e.g., 'average', 'sum', 'maximum'." .
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Universal Instances that do not vary by RDF graphs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# ~~~~~~~~~~~~~~ Complexity Instances ~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## Complexity Instances
+# ------------------------------------------------------------------------------
 efkpis:LowComplexity rdf:type efkpis:Complexity ;
     skos:definition "Indicates minimal data collection, processing, and calculation complexity." .
 
@@ -321,8 +151,9 @@ efkpis:MediumComplexity rdf:type efkpis:Complexity ;
 efkpis:HighComplexity rdf:type efkpis:Complexity ;
     skos:definition "Indicates significant data collection, processing, and calculation complexity, often requiring advanced computational resources or expertise." .
 
-
-# ~~~~~~~~~~~~~~ Relevance Instances ~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## Relevance Instances
+# ------------------------------------------------------------------------------
 efkpis:LowRelevance rdf:type efkpis:Relevance ;
     skos:definition "Indicates a lower significance or impact of the KPI in decision-making or operational contexts." .
 
@@ -333,7 +164,9 @@ efkpis:HighRelevance rdf:type efkpis:Relevance ;
     skos:definition "Indicates a high significance or impact of the KPI, often critical for decision-making or operational efficiency." .
 
 
-# ~~~~~~~~~~~~~~ Stakeholder Instances ~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## Stakeholder Instances
+# ------------------------------------------------------------------------------
 ## BuildingOperator
 efkpis:BuildingOperator rdf:type efkpis:Stakeholder ;
     rdfs:definition "An individual or entity responsible for the operational management of a building." ;
@@ -354,7 +187,10 @@ efkpis:TransmissionSystemOperator rdf:type efkpis:Stakeholder ;
     rdfs:definition "An entity responsible for the high-voltage transmission of electrical power across large distances. They ensure the efficient and reliable transfer of electricity from generation facilities to distribution system operators, balancing electricity supply and demand, and maintaining grid stability." ;
     efkpis:hasInterestIn efkpis:PeakPowerReduction .
 
-# ~~~~~~~~~~~~~~ Spatial Resolution Instances ~~~~~~~~~~~~~~~~
+
+# ------------------------------------------------------------------------------
+## Spatial Resolution Instances
+# ------------------------------------------------------------------------------
 efkpis:BuildingLevel rdf:type efkpis:SpatialResolution ;
     skos:definition "Indicates that the KPI is measured at the level of individual buildings." .
 
@@ -371,7 +207,10 @@ efkpis:UnspecifiedLevel rdf:type efkpis:SpatialResolution ;
     skos:definition "Indicates that the spatial scope or level of the KPI is not specifically defined or restricted. This may be used in cases where the KPI is applicable across various spatial scales or when the spatial resolution is not a determining factor in its calculation or relevance." .
 
 
-# ~~~~~~~~~~~~~~ DOE Flexibility Category Instances ~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## DOE Flexibility Category Instances
+# ------------------------------------------------------------------------------
+# DOE Flexibility Categories
 efkpis:Efficiency rdf:type efkpis:DOEFlexibilityCategory ;
     skos:definition "Refers to strategies or solutions aimed at improving energy efficiency, often through optimized usage or reduced wastage." .
 
@@ -387,7 +226,9 @@ efkpis:Modulation rdf:type efkpis:DOEFlexibilityCategory ;
 efkpis:Generation rdf:type efkpis:DOEFlexibilityCategory ;
     skos:definition "Pertains to the generation aspect of energy flexibility, focusing on adaptable and responsive energy production, often from renewable sources." .
 
-# ~~~~~~~~~~~~~~ Performance Aspect Instances ~~~~~~~~~~~~~~~~
+# ------------------------------------------------------------------------------
+## Performance Aspect Instances
+# ------------------------------------------------------------------------------
 efkpis:PowerPerformance rdf:type efkpis:PerformanceAspect ;
     skos:definition "Relates to the power-related performance of a system, focusing on aspects like peak power demand, load leveling, and power quality." .
 
@@ -403,3 +244,190 @@ efkpis:EmissionPerformance rdf:type efkpis:PerformanceAspect ;
 efkpis:ComfortPerformance rdf:type efkpis:PerformanceAspect ;
     skos:definition "Pertains to maintaining or enhancing occupant comfort in terms of temperature, air quality, and other environmental factors." .
 
+
+
+# ------------------------------------------------------------------------------
+## KPI Instances
+# ------------------------------------------------------------------------------
+## FlexibilityFactor
+efkpis:FlexibilityFactor rdf:type efkpis:KPI ;
+    rdfs:label "Flexibility Factor" ;
+    skos:definition "Indicator of a quantity (e.g., energy, cost, emissions) during high load hours versus during low load hours, which ranges between -1 (quantity was only during high load hours) and 1 (quantity was only during low load hours)." ;
+    efkpis:acronym "FF" ;
+    efkpis:hasUnit unit:FRACTION;
+    efkpis:hasRelevance efkpis:HighRelevance ;
+    efkpis:hasComplexity efkpis:LowComplexity ;
+    efkpis:needsBaseline false ;
+    efkpis:hasStakeholder efkpis:BuildingOperator, efkpis:Researcher ;
+    efkpis:hasEvaluationWindow efkpis:EvaluationWindow ;  # Instance of EvaluationWindow
+    efkpis:hasSpatialResolution efkpis:BuildingLevel ;
+    efkpis:doeFlexibilityCategory efkpis:Shift ;
+    efkpis:hasPerformanceAspect efkpis:EnergyPerformance, efkpis:PowerPerformance ;
+    efkpis:hasInputVariable efkpis:GenericLoadProfile, efkpis:HighLoadStartTimestamp, efkpis:HighLoadEndTimestamp ;  # Example input variable instances
+    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/load_shifting.py#L9C16-L9C16> . # TODO: make this a valid URL
+
+
+
+## PeakPowerReduction
+efkpis:PeakPowerReduction rdf:type efkpis:KPI ;
+    rdfs:label "Peak Power Reduction" ;
+    skos:definition "Reduced power demand during peak hour due to flexible operation. The evaluation window should consider the peak hour after the flexible operation." ;
+    efkpis:acronym "PPR" ;
+    efkpis:hasUnit unit:KiloW ;  # Assuming use of qudt ontology for unit
+    efkpis:hasRelevance efkpis:HighRelevance ;
+    efkpis:hasComplexity efkpis:LowComplexity ;
+    efkpis:needsBaseline true ;
+    efkpis:hasStakeholder efkpis:DistributionSystemOperator, efkpis:TransmissionSystemOperator ;
+    efkpis:hasEvaluationWindow efkpis:SingleEventEvaluationWindow ;  # Assuming this is an instance of efkpis:TimePeriod
+    efkpis:hasSpatialResolution efkpis:UnspecifiedLevel ;
+    efkpis:doeFlexibilityCategory efkpis:LoadShedding ;
+    efkpis:hasPerformanceAspect efkpis:PowerPerformance ;
+    efkpis:hasInputVariable efkpis:BaselineElectricPowerProfile, efkpis:FlexibleElectricPowerProfile, efkpis:PeakTimestamp ;
+    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/peak_power_shedding.py#L9C16-L9C16> .
+    # NOTE: Question: how "smart" should we make the python function? Should it be able to detect the peak hour automatically, or manual input only?
+
+
+## CapacityOfADR
+efkpis:CapacityOfADR rdf:type efkpis:KPI ;
+    rdfs:label "Capacity of ADR" ;
+    skos:definition "The amount of energy that can be added to or removed from the storage system during an ADR action (up/down-flex)." ;
+    efkpis:acronym "CADR" ;  # A suggested acronym
+    efkpis:hasUnit unit:KiloW-HR ;  # Assuming use of qudt ontology for unit
+    efkpis:hasRelevance efkpis:HighRelevance ;
+    efkpis:hasComplexity efkpis:LowComplexity ;
+    efkpis:needsBaseline true ;
+    efkpis:hasStakeholder efkpis:BuildingOperator, efkpis:TransmissionSystemOperator ;
+    efkpis:hasEvaluationWindow efkpis:SingleEventEvaluationWindow ;  # Assuming this is an instance of efkpis:TimePeriod
+    efkpis:hasSpatialResolution efkpis:UnspecifiedLevel ;
+    efkpis:doeFlexibilityCategory efkpis:LoadShifting, efkpis:LoadShedding ;
+    efkpis:hasPerformanceAspect efkpis:EnergyPerformance ;
+    efkpis:hasInputVariable efkpis:BaselineElectricEnergyProfile, efkpis:FlexibleElectricEnergyProfile, efkpis:HighLoadStartTimestamp, efkpis:HighLoadEndTimestamp ;  # Example input variable instances
+    efkpis:pythonCodeURL <https://github.com/HichamJohra/energy_flexibility_kpis/blob/bf5f03e04911c9e3b515b2316d0a52d98dd63428/energy_flexibility_kpis/kpi/energy_flexibility/energy_storage_capability.py#L9C16-L9C16> .
+
+
+# ------------------------------------------------------------------------------
+## Time Period Instances
+# ------------------------------------------------------------------------------
+efkpis:EvaluationWindow rdf:type efkpis:TimePeriod ;
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime .    # Placeholder for actual end time
+
+
+# ------------------------------------------------------------------------------
+## Input Variable Instances
+# ------------------------------------------------------------------------------
+# ~~~~~~~~~~~~ Single Value Input Variables ~~~~~~~~~~~~
+## HighLoadStartTimestamp
+efkpis:HighLoadStartTimestamp rdf:type efkpis:SingleValueInputVariable ;
+    rdfs:label "HighLoadStartTimestamp" ;
+    skos:definition "The datetime when unit price/emission are higher, or the start of the peak hours." ;
+    efkpis:physicalQuantity qudt:DATETIME ;  # Using QUDT ontology for datetime encoding
+    efkpis:hasValue "___"^^xsd:dateTime .  # Placeholder for actual peak datetime value
+
+    # NOTE: we can add data source properties for input variables (e.g., Brick model, CSV file, etc.), this should be consistent with the config file.
+
+## HighLoadEndTimestamp
+efkpis:HighLoadEndTimestamp rdf:type efkpis:SingleValueInputVariable ;
+    rdfs:label "HighLoadEndTimestamp" ;
+    skos:definition "The datetime when unit price/emission revert to normal, or the end of the peak hours." ;
+    efkpis:physicalQuantity qudt:DATETIME ;  # Representing the physical quantity as 'time'
+    efkpis:hasValue "___"^^xsd:dateTime .  # Placeholder for actual datetime
+
+## Peak Timestamp
+efkpis:PeakTimestamp rdf:type efkpis:SingleValueInputVariable ;
+    rdfs:label "Peak Timestamp" ;
+    skos:definition "The specific datetime marking the peak of electric power demand, used to identify peak load conditions." ;
+    efkpis:physicalQuantity qudt:DATETIME ;  # Representing the physical quantity as 'time'
+    efkpis:hasValue "___"^^xsd:dateTime .  # Placeholder for actual peak datetime value
+
+# ~~~~~~~~~~~~ Serial Value Input Variables ~~~~~~~~~~~~
+## GenericLoadProfile
+efkpis:GenericLoadProfile rdf:type efkpis:SerialValueInputVariable  ;
+    rdfs:label "GenericLoadProfile" ;
+    skos:definition "A generic time series of energy, cost, or GHG emissions, measured in uncontrolled (unspecified) conditions." ;
+    efkpis:physicalQuantity quantitykind:Energy ;  # Representing the physical quantity (e.g., energy, cost, emissions)
+    efkpis:hasUnit unit:KiloW-HR ;  # Assuming use of qudt ontology for unit
+    efkpis:temporalResolutionUnit unit:SEC ;  # Referencing OM unit for second, this can be changed to other units (e.g., unit:HR, unit:DAY)
+    efkpis:temporalResolutionValue "___"^^xsd:integer ;  # Placeholder for actual temporal resolution value
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime ;    # Placeholder for actual end time
+    efkpis:dataDescription _:genericLoadProfileDataSource .
+
+## Baseline Electric Power Profile
+efkpis:BaselineElectricPowerProfile rdf:type efkpis:SerialValueInputVariable  ;
+    rdfs:label "Baseline Electric Power Profile" ;
+    skos:definition "A time series representing the electric power profile under normal (non-flexible) operation conditions, used as a baseline for comparison." ;
+    efkpis:physicalQuantity quantitykind:ElectricPower ;  # Representing the physical quantity as 'time'
+    efkpis:hasUnit unit:KiloW ;  # Assuming use of qudt ontology for unit
+    efkpis:temporalResolutionUnit unit:SEC ;  # Referencing OM unit for second, this can be changed to other units (e.g., unit:HR, unit:DAY)
+    efkpis:temporalResolutionValue "___"^^xsd:integer ;  # Placeholder for actual temporal resolution value
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime ;    # Placeholder for actual end time
+    efkpis:dataDescription _:baselinePowerProfileDataSource .
+
+## Flexible Electric Power Profile
+efkpis:FlexibleElectricPowerProfile rdf:type efkpis:SerialValueInputVariable  ;
+    rdfs:label "Flexible Electric Power Profile" ;
+    skos:definition "A time series representing the electric power profile during flexible operation, reflecting changes due to demand response or other flexibility strategies." ;
+    efkpis:physicalQuantity quantitykind:ElectricPower ;  # Representing the physical quantity as 'time'
+    efkpis:hasUnit unit:KiloW ;  # Assuming use of qudt ontology for unit
+    efkpis:temporalResolutionUnit unit:SEC ;  # Referencing OM unit for second, this can be changed to other units (e.g., unit:HR, unit:DAY)
+    efkpis:temporalResolutionValue "___"^^xsd:integer ;  # Placeholder for actual temporal resolution value
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime ;    # Placeholder for actual end time
+    efkpis:dataDescription _:flexiblePowerProfileDataSource .
+
+## Baseline Electric Energy Profile
+efkpis:BaselineElectricEnergyProfile rdf:type efkpis:SerialValueInputVariable  ;
+    rdfs:label "Baseline Electric Energy Profile" ;
+    skos:definition "A time series representing the electric energy profile under normal (non-flexible) operation conditions, used as a baseline for comparison." ;
+    efkpis:physicalQuantity quantitykind:Energy ;  # Representing the physical quantity as energy
+    efkpis:hasUnit unit:KiloW-HR ;  # Using qudt ontology for kilowatt-hour unit
+    efkpis:temporalResolutionUnit unit:SEC ;  # Referencing OM unit for second, this can be changed to other units
+    efkpis:temporalResolutionValue "___"^^xsd:integer ;  # Placeholder for actual temporal resolution value
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime ;    # Placeholder for actual end time
+    efkpis:dataDescription _:baselineEnergyProfileDataSource .
+
+## Flexible Electric Energy Profile
+efkpis:FlexibleElectricEnergyProfile rdf:type efkpis:SerialValueInputVariable  ;
+    rdfs:label "Flexible Electric Energy Profile" ;
+    skos:definition "A time series representing the electric energy profile during flexible operation, reflecting changes due to demand response or other flexibility strategies." ;
+    efkpis:physicalQuantity quantitykind:Energy ;  # Representing the physical quantity as energy
+    efkpis:hasUnit unit:KiloW-HR ;  # Using qudt ontology for kilowatt-hour unit
+    efkpis:temporalResolutionUnit unit:SEC ;  # Referencing OM unit for second, this can be changed to other units
+    efkpis:temporalResolutionValue "___"^^xsd:integer ;  # Placeholder for actual temporal resolution value
+    efkpis:startTime "___"^^xsd:dateTime ;  # Placeholder for actual start time
+    efkpis:endTime "___"^^xsd:dateTime ;    # Placeholder for actual end time
+    efkpis:dataDescription _:flexibleEnergyProfileDataSource .
+
+
+_:genericLoadProfileDataSource rdf:type rdf:Description ;
+    efkpis:filePath "file:///path/to/generic_load_profile.csv" ;
+    efkpis:fileFormat "CSV" ;
+    efkpis:dataColumns "timestamp, value" .
+
+_:baselinePowerProfileDataSource rdf:type rdf:Description ;
+    efkpis:filePath "file:///path/to/dummy_power_profile.csv" ;
+    efkpis:fileFormat "CSV" ;
+    efkpis:dataColumns "timestamp, baselinePower (kW)" .
+
+_:flexiblePowerProfileDataSource rdf:type rdf:Description ;
+    efkpis:filePath "file:///path/to/dummy_power_profile.csv" ;
+    efkpis:fileFormat "CSV" ;
+    efkpis:dataColumns "timestamp, flexiblePower (kW)" .
+
+_:baselineEnergyProfileDataSource rdf:type rdf:Description ;
+    efkpis:filePath "file:///path/to/baseline_energy_profile.csv" ;
+    efkpis:fileFormat "CSV" ;
+    efkpis:dataColumns "timestamp, baselineEnergy (kWh)" .
+
+_:flexibleEnergyProfileDataSource rdf:type rdf:Description ;
+    efkpis:filePath "file:///path/to/flexible_energy_profile.csv" ;
+    efkpis:fileFormat "CSV" ;
+    efkpis:dataColumns "timestamp, flexibleEnergy (kWh)" .
+
+
+
+
+    # NOTE: in order to map the semantic data model with the config file, we should ensure the field names are consistent in the config file.
